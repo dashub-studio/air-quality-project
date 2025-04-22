@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Prediction</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Air Quality Prediction</h1>
+        <form id="aqiForm">
+            <label for="station">Select Station:</label>
+            <select id="station" name="station" required>
+                <option value="" disabled selected>Select a station</option>
+                {% for station in stations %}
+                <option value="{{ station }}">{{ station }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="pm2_5">PM2.5:</label>
+            <input type="number" step="0.01" id="pm2_5" name="pm2_5" required>
+
+            <label for="pm10">PM10:</label>
+            <input type="number" step="0.01" id="pm10" name="pm10" required>
+
+            <label for="no2">NO2:</label>
+            <input type="number" step="0.01" id="no2" name="no2" required>
+
+            <label for="so2">SO2:</label>
+            <input type="number" step="0.01" id="so2" name="so2" required>
+
+            <label for="co">CO:</label>
+            <input type="number" step="0.01" id="co" name="co" required>
+
+            <label for="o3">O3:</label>
+            <input type="number" step="0.01" id="o3" name="o3" required>
+
+            <button type="submit">Predict AQI</button>
+        </form>
+        <div id="result"></div>
+    </div>
+    <script>
+      document.getElementById("aqiForm").addEventListener("submit", async function(event) {
+          event.preventDefault();
+          const formData = new FormData(event.target);
+          const response = await fetch("/predict", {
+              method: "POST",
+              body: formData
+          });
+          const result = await response.json();
+          const resultDiv = document.getElementById("result");
+          if (result.error) {
+              resultDiv.innerHTML = `<p class="error">Error: ${result.error}</p>`;
+          } else {
+              resultDiv.innerHTML = `
+                  <p class="success">
+                      Station: ${result.station}<br>
+                      Predicted AQI: ${result.aqi}<br>
+                      Health Advisory: ${result.health_advisory}
+                  </p>`;
+          }
+      });
+  </script>
+</body>
+</html>
